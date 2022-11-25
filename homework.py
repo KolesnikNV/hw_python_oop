@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import ClassVar, List, Type, Dict
+from typing import ClassVar, List
 from typing_extensions import Final
 from abc import abstractmethod
 
@@ -9,11 +9,11 @@ class InfoMessage:
     """Информационное сообщение о тренировке."""
 
     MESSAGE = (
-        "Тип тренировки: {};"
-        " Длительность: {:.3f} ч.;"
-        " Дистанция: {:.3f} км;"
-        " Ср. скорость: {:.3f} км/ч;"
-        " Потрачено ккал: {:.3f}."
+        "Тип тренировки: {training_type};"
+        " Длительность: {duration:.3f} ч.;"
+        " Дистанция: {distance:.3f} км;"
+        " Ср. скорость: {speed:.3f} км/ч;"
+        " Потрачено ккал: {calories:.3f}."
     )
 
     def __init__(
@@ -23,7 +23,7 @@ class InfoMessage:
         distance: float,
         speed: float,
         calories: float,
-    ):
+    ) -> None:
         self.training_type = training_type
         self.duration = duration
         self.distance = distance
@@ -32,20 +32,20 @@ class InfoMessage:
 
     def get_message(self) -> str:
         return self.MESSAGE.format(
-            self.training_type,
-            self.duration,
-            self.distance,
-            self.speed,
-            self.calories,
+            training_type=self.training_type,
+            duration=self.duration,
+            distance=self.distance,
+            speed=self.speed,
+            calories=self.calories,
         )
 
 
 class Training:
     """Базовый класс тренировки."""
 
-    M_IN_KM: Final = 1000
-    LEN_STEP: ClassVar = 0.65
-    MIN_IN_H: Final = 60
+    M_IN_KM: Final[int] = 1000
+    LEN_STEP: ClassVar[float] = 0.65
+    MIN_IN_H: Final[int] = 60
 
     def __init__(
         self,
@@ -78,21 +78,18 @@ class Training:
         """Вернуть информационное сообщение о выполненной тренировке."""
         return InfoMessage(
             self.__class__.__name__,
-            self.duration,
-            self.get_distance(),
-            self.get_mean_speed(),
-            self.get_spent_calories(),
+            duration=self.duration,
+            distance=self.get_distance(),
+            speed=self.get_mean_speed(),
+            calories=self.get_spent_calories(),
         )
 
 
 class Running(Training):
     """Тренировка: бег."""
 
-    CALORIES_MEAN_SPEED_MULTIPLIER: ClassVar = 18
-    CALORIES_MEAN_SPEED_SHIFT: ClassVar = 1.79
-
-    def __init__(self, action, duration, weight):
-        super().__init__(action, duration, weight)
+    CALORIES_MEAN_SPEED_MULTIPLIER: ClassVar[int] = 18
+    CALORIES_MEAN_SPEED_SHIFT: ClassVar[float] = 1.79
 
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
@@ -113,10 +110,10 @@ class Running(Training):
 class SportsWalking(Training):
     """Тренировка: спортивная ходьба."""
 
-    CALORIES_WEIGHT_MULTIPLIER: ClassVar = 0.035
-    CALORIES_SPEED_HEIGHT_MULTIPLIER: ClassVar = 0.029
-    KMH_IN_MSEC: ClassVar = 0.278
-    CM_IN_M: Final = 100
+    CALORIES_WEIGHT_MULTIPLIER: Final[float] = 0.035
+    CALORIES_SPEED_HEIGHT_MULTIPLIER: Final[float] = 0.029
+    KMH_IN_MSEC: Final[float] = 0.278
+    CM_IN_M: Final[int] = 100
 
     def __init__(
         self,
@@ -149,9 +146,9 @@ class SportsWalking(Training):
 class Swimming(Training):
     """Тренировка: плавание."""
 
-    CALORIES_MEAN_SPEED_SHIFT: ClassVar = 1.1
-    CALORIES_WEIGHT_MULTIPLIER: ClassVar = 2
-    LEN_STEP: ClassVar = 1.38
+    CALORIES_MEAN_SPEED_SHIFT: Final[float] = 1.1
+    CALORIES_WEIGHT_MULTIPLIER: Final[int] = 2
+    LEN_STEP = 1.38
 
     def __init__(
         self,
@@ -185,7 +182,7 @@ class Swimming(Training):
 
 def read_package(workout_type: str, data: List[int]) -> Training:
     """Прочитать данные полученные от датчиков."""
-    workout_type_training_cls_map: Dict[str, Type[Training]] = {
+    workout_type_training_cls_map = {
         "SWM": Swimming,
         "RUN": Running,
         "WLK": SportsWalking,
